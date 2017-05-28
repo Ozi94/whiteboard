@@ -3,23 +3,20 @@ var express = require('express'),
     http = require('http'),
     socketIo = require('socket.io');
 
-// start webserver on port 8080
 var server = http.createServer(app);
 var io = socketIo.listen(server);
 server.listen(8080);
-// add directory with our static files
+
 app.use(express.static(__dirname + '/public'));
 console.log("Server running on 127.0.0.1:8080");
 
-// array of all lines drawn
 var line_history = [];
 
-// event-handler for new incoming connections
 io.on('connection', function (socket) {
 
     // first send the history to the new client
     for (var i in line_history) {
-        socket.emit('draw_line', {line: line_history[i]});
+        socket.emit('drawLine', {line: line_history[i]});
     }
 
     // add handler for message type "draw_line".
@@ -35,5 +32,19 @@ io.on('connection', function (socket) {
         for (var lines in line_history) {
             io.emit('drawLine', {line: line_history[lines]});
         }
-    })
+    });
+
+    socket.on('room', function(room) {
+        socket.room = room;
+        socket.join(socket.room);
+        io.sockets.in(room).emit('message', 'USer has joined room');
+    });
+
+    socket.on('sendMessage', function (message) {
+
+        // console.log('Current room: ' + socket.room +'\n');
+        io.sockets.in(socket.room).emit('message', message);
+        // console.log('Sending to ' + socket.room + ' the message: ' + message);
+    });
+
 });

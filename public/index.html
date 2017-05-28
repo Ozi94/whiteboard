@@ -1,13 +1,36 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>MiniDoodle</title>
-      <meta charset="utf-8">
-      <link rel="stylesheet" href="style.css" />
-      <script src="socket.io/socket.io.js"></script>
-      <script src="client.js"></script>
-   </head>
-   <body>
-      <canvas id="drawing"></canvas>
-   </body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<head>
+    <title>MiniDoodle</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css"/>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+</head>
+<body>
+<div>
+    <form id="messageForm">
+        <label>Mesaj: </label>
+        <textarea id="message"></textarea>
+        <input type="submit" value="Send">
+    </form>
+</div>
+<canvas id="drawing"></canvas>
+<script>
+    $(function () {
+        var socket = io.connect();
+
+        var message = $('#message');
+        var messageForm = $('#messageForm');
+
+        messageForm.submit(function (e) {
+            e.preventDefault();
+
+            socket.emit('sendMessage', message.val());
+            message.val('');
+        });
+    });
+</script>
+</body>
 </html>

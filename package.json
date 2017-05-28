@@ -1,9 +1,10 @@
 {
-   "name": "MiniDoodle",
-   "description": "Collaborative drawing canvas",
-   "author": "Code-and.Coffee",
-   "dependencies" : {
-      "express": "4.x",
-      "socket.io": "*"
-   }
+  "name": "MiniDoodle",
+  "description": "Collaborative drawing canvas",
+  "author": "Code-and.Coffee",
+  "dependencies": {
+    "express": "4.x",
+    "jquery": "^3.2.1",
+    "socket.io": "*"
+  }
 }

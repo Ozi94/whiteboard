@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
         pos: {x: 0, y: 0},
         pos_prev: false
     };
+
     // get canvas element and create context
     var canvas = document.getElementById('drawing');
     var context = canvas.getContext('2d');
@@ -40,16 +41,50 @@ document.addEventListener("DOMContentLoaded", function () {
         context.stroke();
     });
 
+    socket.on('message', function(data) {
+        console.log('Incoming message:', data);
+    });
+
+    socket.on('connect', function() {
+        var input = prompt("What's the room you want to connect to?");
+        socket.emit('room', input);
+    });
+
+    var message = $('#message');
+    var messageForm = $('#messageForm');
+
+    messageForm.submit(function (e) {
+        e.preventDefault();
+
+        socket.emit('sendMessage', message.val());
+        message.val('');
+    });
+
     // main loop, running every 25ms
     function mainLoop() {
         // check if the user is drawing
+        drawLine();
+
+        resizeScreen();
+
+        setTimeout(mainLoop, 25);
+    }
+
+    mainLoop();
+
+    function drawLine(){
         if (mouse.click && mouse.move && mouse.pos_prev) {
             // send line to to the server
             socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
             mouse.move = false;
         }
 
-        if (screenWidth !== window.innerWidth || screenHeight !== window.innerHeight){
+        mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
+
+    }
+
+    function resizeScreen() {
+        if (screenWidth !== window.innerWidth || screenHeight !== window.innerHeight) {
 
             screenWidth = window.innerWidth;
             screenHeight = window.innerHeight;
@@ -63,10 +98,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log(canvas);
         }
-
-        mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
-        setTimeout(mainLoop, 25);
     }
-
-    mainLoop();
 });
