@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var screenHeight = window.innerHeight;
     var socket = io.connect();
 
+    var room = null;
+
     // set canvas to full browser width/height
     canvas.width = screenWidth;
     canvas.height = screenHeight;
@@ -35,18 +37,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // draw line received from server
     socket.on('drawLine', function (data) {
         var line = data.line;
-        context.beginPath();
-        context.moveTo(line[0].x * screenWidth, line[0].y * screenHeight);
-        context.lineTo(line[1].x * screenWidth, line[1].y * screenHeight);
-        context.stroke();
+
+        for (var i = 0; i < line.length - 1; i += 2) {
+            context.beginPath();
+            context.moveTo(line[i].x * screenWidth, line[i].y * screenHeight);
+            context.lineTo(line[i + 1].x * screenWidth, line[i + 1].y * screenHeight);
+            context.stroke();
+        }
     });
 
-    socket.on('message', function(data) {
+    socket.on('message', function (data) {
         console.log('Incoming message:', data);
     });
 
-    socket.on('connect', function() {
+    socket.on('connect', function () {
         var input = prompt("What's the room you want to connect to?");
+        room = input;
         socket.emit('room', input);
     });
 
@@ -72,10 +78,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     mainLoop();
 
-    function drawLine(){
+    function drawLine() {
         if (mouse.click && mouse.move && mouse.pos_prev) {
             // send line to to the server
-            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
+            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev], room: room});
             mouse.move = false;
         }
 
@@ -94,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
             canvas.width = screenWidth;
             canvas.height = screenHeight;
 
-            socket.emit('resizeScreen', [screenWidth, screenHeight]);
+            socket.emit('resizeScreen');
 
             console.log(canvas);
         }

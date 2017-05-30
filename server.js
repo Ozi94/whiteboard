@@ -10,34 +10,48 @@ server.listen(8080);
 app.use(express.static(__dirname + '/public'));
 console.log("Server running on 127.0.0.1:8080");
 
-var line_history = [];
+var lineHistory = {};
+var rooms = [];
 
 io.on('connection', function (socket) {
 
-    // first send the history to the new client
-    for (var i in line_history) {
-        socket.emit('drawLine', {line: line_history[i]});
-    }
-
-    // add handler for message type "draw_line".
     socket.on('drawLine', function (data) {
-        // add received line to history
-        line_history.push(data.line);
-        // send line to all clients
-        io.emit('drawLine', {line: data.line});
-    });
 
-    socket.on('resizeScreen', function (data) {
-        io.emit(data);
-        for (var lines in line_history) {
-            io.emit('drawLine', {line: line_history[lines]});
+        var roomName = data.room;
+
+        if (rooms.indexOf(roomName) === -1) {
+            rooms.push(roomName);
+            lineHistory[roomName] = data.line;
         }
+        else {
+            lineHistory[roomName].push.apply(lineHistory[roomName], data.line);
+        }
+
+        io.sockets.in(socket.room).emit('drawLine', {line: data.line});
     });
 
-    socket.on('room', function(room) {
+    socket.on('resizeScreen', function () {
+
+        console.log('resize');
+
+        console.log(lineHistory[socket.room]);
+
+        io.to(socket.id).emit('drawLine', {line: lineHistory[socket.room]});
+
+    });
+
+    socket.on('room', function (room) {
         socket.room = room;
         socket.join(socket.room);
+
         io.sockets.in(room).emit('message', 'USer has joined room');
+
+        var roomLineHistory = lineHistory[socket.room];
+
+        if (roomLineHistory !== undefined) {
+            io.to(socket.id).emit('drawLine', {line: roomLineHistory});
+        }
+
     });
 
     socket.on('sendMessage', function (message) {
