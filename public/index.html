@@ -5,25 +5,19 @@
     <title>MiniDoodle</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="style.css"/>
-    <script src="socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
 </head>
 <body>
-<canvas id="drawing"></canvas>
-<script>
-    $(function () {
-        var socket = io.connect();
+    <canvas id="drawing"></canvas>
 
-        var message = $('#message');
-        var messageForm = $('#messageForm');
+    <div class="colors">
+        <div class="color black"></div>
+        <div class="color red"></div>
+        <div class="color green"></div>
+        <div class="color blue"></div>
+        <div class="color yellow"></div>
+    </div>
 
-        messageForm.submit(function (e) {
-            e.preventDefault();
-
-            socket.emit('sendMessage', message.val());
-            message.val('');
-        });
-    });
-</script>
+    <script src="socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
 </body>
 </html>

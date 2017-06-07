@@ -1,11 +1,43 @@
-* { 
-   margin: 0;
-   padding: 0;
+/**
+ * Fix user-agent
+ */
+
+* {
+    box-sizing: border-box;
 }
-body, html{
-   width: 100%;
-   height: 100%;
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
-#canvas {
-   display: block;
+
+/**
+ * Canvas
+ */
+
+#drawing {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
 }
+
+.colors {
+    position: fixed;
+}
+
+.color {
+    display: inline-block;
+    height: 48px;
+    width: 48px;
+}
+
+.color.black { background-color: black; }
+.color.red { background-color: red; }
+.color.green { background-color: green; }
+.color.blue { background-color: blue; }
+.color.yellow { background-color: yellow; }

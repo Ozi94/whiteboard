@@ -25,9 +25,11 @@ io.on('connection', function (socket) {
         }
         else {
             lineHistory[roomName].push.apply(lineHistory[roomName], data.line);
+            lineHistory[roomName].push.apply(lineHistory[roomName], [data.color]);
+            console.log(lineHistory[roomName]);
         }
 
-        io.sockets.in(socket.room).emit('drawLine', {line: data.line});
+        io.sockets.in(socket.room).emit('drawLine', {line: data.line, color: data.color});
     });
 
     socket.on('resizeScreen', function () {
@@ -47,6 +49,7 @@ io.on('connection', function (socket) {
         io.sockets.in(room).emit('message', 'USer has joined room');
 
         var roomLineHistory = lineHistory[socket.room];
+        console.log(roomLineHistory);
 
         if (roomLineHistory !== undefined) {
             io.to(socket.id).emit('drawLine', {line: roomLineHistory});

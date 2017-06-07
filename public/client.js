@@ -6,6 +6,21 @@ document.addEventListener("DOMContentLoaded", function () {
         pos_prev: false
     };
 
+    var current = {
+        color: 'black'
+    };
+
+    var colors = document.getElementsByClassName('color');
+
+    for (var i = 0; i < colors.length; i++) {
+        colors[i].addEventListener('click', onColorUpdate, false);
+    }
+
+    function onColorUpdate(e) {
+        current.color = e.target.className.split(' ')[1];
+        console.log(current.color);
+    }
+
     // get canvas element and create context
     var canvas = document.getElementById('drawing');
     var context = canvas.getContext('2d');
@@ -36,12 +51,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // draw line received from server
     socket.on('drawLine', function (data) {
+        console.log(data);
         var line = data.line;
+        var color = data.color;
+        console.log(color);
 
-        for (var i = 0; i < line.length - 1; i += 2) {
+        for (var i = 0; i < line.length - 1; i += 1) {
             context.beginPath();
             context.moveTo(line[i].x * screenWidth, line[i].y * screenHeight);
             context.lineTo(line[i + 1].x * screenWidth, line[i + 1].y * screenHeight);
+            context.strokeStyle = color;
+            context.lineWidth = 2;
             context.stroke();
         }
     });
@@ -81,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function drawLine() {
         if (mouse.click && mouse.move && mouse.pos_prev) {
             // send line to to the server
-            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev], room: room});
+            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev], room: room, color: current.color});
             mouse.move = false;
         }
 
