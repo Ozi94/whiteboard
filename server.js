@@ -25,11 +25,10 @@ io.on('connection', function (socket) {
         }
         else {
             lineHistory[roomName].push.apply(lineHistory[roomName], data.line);
-            lineHistory[roomName].push.apply(lineHistory[roomName], [data.color]);
             console.log(lineHistory[roomName]);
         }
 
-        io.sockets.in(socket.room).emit('drawLine', {line: data.line, color: data.color});
+        io.sockets.in(socket.room).emit('drawLine', {line: data.line});
     });
 
     socket.on('resizeScreen', function () {
