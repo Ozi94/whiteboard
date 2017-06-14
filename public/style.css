@@ -28,6 +28,7 @@ html, body {
 
 .colors {
     position: fixed;
+    float: left;
 }
 
 .color {
@@ -36,8 +37,67 @@ html, body {
     width: 48px;
 }
 
-.color.black { background-color: black; }
-.color.red { background-color: red; }
-.color.green { background-color: green; }
-.color.blue { background-color: blue; }
-.color.yellow { background-color: yellow; }
+.pen {
+    position: fixed;
+    top: 50px;
+    float: right;
+}
+
+.size {
+    display: inline-block;
+}
+
+.color.black {
+    background-color: black;
+}
+
+.color.red {
+    background-color: red;
+}
+
+.color.green {
+    background-color: green;
+}
+
+.color.blue {
+    background-color: blue;
+}
+
+.color.yellow {
+    background-color: yellow;
+}
+
+.size.one {
+    background-color: black;
+    border-radius: 80%;
+    width: 20px;
+    height: 20px;
+}
+
+.size.two {
+    background-color: black;
+    border-radius: 80%;
+    width: 25px;
+    height: 25px;
+}
+
+.size.three {
+    background-color: black;
+    border-radius: 80%;
+    width: 30px;
+    height: 30px;
+}
+
+.size.four {
+    background-color: black;
+    border-radius: 80%;
+    width: 35px;
+    height: 35px;
+}
+
+.size.five {
+    background-color: black;
+    border-radius: 80%;
+    width: 40px;
+    height: 40px;
+}

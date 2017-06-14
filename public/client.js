@@ -13,10 +13,24 @@ document.addEventListener("DOMContentLoaded", function () {
         mouse.pos.color = color;
     }
 
+    var size = 2;
+
+    var pen = document.getElementsByClassName('size');
+
+    for (var i = 0; i < pen.length; i++) {
+        pen[i].addEventListener('click', onPenSizeUpdate, false);
+    }
+
+    function onPenSizeUpdate(e) {
+        console.log(e);
+        var size = e.target.className.split(' ')[2];
+        mouse.pos.size = size;
+    }
+
     var mouse = {
         click: false,
         move: false,
-        pos: {x: 0, y: 0, color: color},
+        pos: {x: 0, y: 0, color: color, size: size},
         pos_prev: false
     };
 
@@ -57,7 +71,7 @@ document.addEventListener("DOMContentLoaded", function () {
             context.moveTo(line[i].x * screenWidth, line[i].y * screenHeight);
             context.lineTo(line[i + 1].x * screenWidth, line[i + 1].y * screenHeight);
             context.strokeStyle = line[i].color;
-            context.lineWidth = 2;
+            context.lineWidth = line[i].size;
             context.stroke();
         }
     });

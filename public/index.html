@@ -7,17 +7,28 @@
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
+<div>
     <canvas id="drawing"></canvas>
 
-    <div class="colors">
-        <div class="color black"></div>
-        <div class="color red"></div>
-        <div class="color green"></div>
-        <div class="color blue"></div>
-        <div class="color yellow"></div>
+        <div class="colors">
+            <div class="color black"></div>
+            <div class="color red"></div>
+            <div class="color green"></div>
+            <div class="color blue"></div>
+            <div class="color yellow"></div>
+        </div>
+
+    <div class="pen">
+        <div class="size one 1"></div>
+        <div class="size two 3"></div>
+        <div class="size three 5"></div>
+        <div class="size four 7"></div>
+        <div class="size five 9"></div>
     </div>
 
-    <script src="socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+</div>
+
+<script src="socket.io/socket.io.js"></script>
+<script src="client.js"></script>
 </body>
 </html>
