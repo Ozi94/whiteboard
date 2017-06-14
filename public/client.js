@@ -1,15 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    $(".color").hide();
+    $(".size").hide();
+
     var color = 'black';
 
     var colors = document.getElementsByClassName('color');
 
     for (var i = 0; i < colors.length; i++) {
         colors[i].addEventListener('click', onColorUpdate, false);
+        console.log(colors[i]);
     }
 
     function onColorUpdate(e) {
         var color = e.target.className.split(' ')[1];
+        console.log(color);
         mouse.pos.color = color;
     }
 
@@ -94,6 +99,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
         socket.emit('sendMessage', message.val());
         message.val('');
+    });
+
+    $("#colors").click(function () {
+        if ($('.color').is(':visible')) {
+            $(".color").hide();
+        }
+        else {
+            $(".color").show();
+        }
+    });
+
+    $(".color").click(function () {
+        $(".color").hide();
+    });
+
+    $("#size").click(function () {
+        if ($('.size').is(':visible')) {
+            $(".size").hide();
+        } else {
+            $(".size").show();
+        }
+    });
+
+    $(".size").click(function () {
+        $(".size").hide();
+    });
+
+    $("#save").click(function () {
+        var img = canvas.toDataURL("image/png");
+        var saveImageWindow = window.open("");
+        var title = 'image' + new Date().toISOString();
+
+        saveImageWindow.document.write('<title>'+ title + '</title>');
+        saveImageWindow.document.write('<img src="'+img+'"/>');
     });
 
     // main loop, running every 25ms

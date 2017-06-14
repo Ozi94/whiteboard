@@ -26,25 +26,10 @@ html, body {
     top: 0;
 }
 
-.colors {
-    position: fixed;
-    float: left;
-}
-
 .color {
     display: inline-block;
     height: 48px;
     width: 48px;
-}
-
-.pen {
-    position: fixed;
-    top: 50px;
-    float: right;
-}
-
-.size {
-    display: inline-block;
 }
 
 .color.black {
@@ -67,37 +52,42 @@ html, body {
     background-color: yellow;
 }
 
-.size.one {
+.size.xs {
     background-color: black;
     border-radius: 80%;
     width: 20px;
     height: 20px;
 }
 
-.size.two {
+.size.s {
     background-color: black;
     border-radius: 80%;
     width: 25px;
     height: 25px;
 }
 
-.size.three {
+.size.m {
     background-color: black;
     border-radius: 80%;
     width: 30px;
     height: 30px;
 }
 
-.size.four {
+.size.l {
     background-color: black;
     border-radius: 80%;
     width: 35px;
     height: 35px;
 }
 
-.size.five {
+.size.xl {
     background-color: black;
     border-radius: 80%;
     width: 40px;
     height: 40px;
+}
+
+.navbar-nav > li {
+    padding-left: 3px;
+    padding-right: 3px;
 }
