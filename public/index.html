@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
 </head>
 <body>
 
@@ -20,6 +21,9 @@
                 <a class="navbar-brand" href="#">Collaborative drawing</a>
             </div>
             <ul class="nav navbar-nav">
+                <li>
+                    <button id="text" class="btn btn-primary">Text</button>
+                </li>
                 <li>
                     <button id="colors" class="btn btn-primary">Colors</button>
                 </li>
@@ -59,9 +63,18 @@
                 <li>
                     <button id="save" class="btn btn-primary">Save</button>
                 </li>
+                <li>
+                    <button id="rooms" class="btn btn-primary">Roomlist</button>
+                </li>
             </ul>
         </div>
     </nav>
+</div>
+
+<div class="messages" id="messages"></div>
+
+<div class="input">
+    <input class="inputMessage" placeholder="Type here..."/>
 </div>
 
 <script src="socket.io/socket.io.js"></script>

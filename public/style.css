@@ -91,3 +91,17 @@ html, body {
     padding-left: 3px;
     padding-right: 3px;
 }
+
+.messages {
+    position: absolute;
+    width: 20%;
+    height: 85%;
+    background-color: lightblue;
+    overflow: auto
+}
+
+.inputMessage {
+    position: absolute;
+    bottom: 0;
+    width: 20%;
+}

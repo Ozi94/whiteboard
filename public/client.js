@@ -4,6 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
     $(".size").hide();
 
     var color = 'black';
+    var count = 0;
+
+    var text = false;
 
     var colors = document.getElementsByClassName('color');
 
@@ -69,37 +72,87 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // draw line received from server
     socket.on('drawLine', function (data) {
-        var line = data.line;
 
-        for (var i = 0; i < line.length - 1; i += 2) {
-            context.beginPath();
-            context.moveTo(line[i].x * screenWidth, line[i].y * screenHeight);
-            context.lineTo(line[i + 1].x * screenWidth, line[i + 1].y * screenHeight);
-            context.strokeStyle = line[i].color;
-            context.lineWidth = line[i].size;
-            context.stroke();
+        if (data !== undefined) {
+
+            var line = data.line;
+
+            for (var i = 0; i < line.length - 1; i += 2) {
+                context.beginPath();
+                context.moveTo(line[i].x * screenWidth, line[i].y * screenHeight);
+                context.lineTo(line[i + 1].x * screenWidth, line[i + 1].y * screenHeight);
+                context.strokeStyle = line[i].color;
+                context.lineWidth = line[i].size;
+                context.stroke();
+            }
         }
+
     });
 
     socket.on('message', function (data) {
-        console.log('Incoming message:', data);
+        console.log(data);
+        console.log(data.username);
+        console.log('Incoming message:', data.message);
+
+        var content = '<p>' + '<b>' + data.username + '</b>' + ':' + data.message + '</p>';
+        $('.messages').append(content);
+
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
     });
 
     socket.on('connect', function () {
+        var username = prompt("What's your name?");
         var input = prompt("What's the room you want to connect to?");
+
         room = input;
+
         socket.emit('room', input);
+        socket.emit('adduser', username);
     });
 
-    var message = $('#message');
-    var messageForm = $('#messageForm');
+    socket.on('userJoined', function (data) {
 
-    messageForm.submit(function (e) {
-        e.preventDefault();
-
-        socket.emit('sendMessage', message.val());
-        message.val('');
+        console.log(data);
+        var content = '<p>' + '<b>' + data.username + '</b>' + ' joined' + '</p>';
+        $('.messages').append(content);
+        addParticipantsMessage(data.userNumber);
     });
+
+    socket.on('userLeft', function (data) {
+
+        var content = '<p>' + '<b>' + data.username + '</b>' + ' left' + '</p>';
+        $('.messages').append(content);
+        addParticipantsMessage(data.userNumber);
+    });
+
+    socket.on('roomlist', function (data) {
+        console.log(data);
+    });
+
+    socket.on('drawText', function (data) {
+        console.log('drawtextevent');
+        console.log(data);
+
+        var fontSize = data.mouse.size * 10 + "px Arial";
+
+        context.font = fontSize;
+
+        context.fillStyle = data.mouse.color;
+        context.fillText(data.message,data.mouse.x * screenWidth,data.mouse.y * screenHeight);
+    });
+
+    function addParticipantsMessage(data) {
+        var message = '';
+        if (data === 1) {
+            message += "there's 1 participant";
+        } else {
+            message += "there are " + data + " participants";
+        }
+
+        var content = '<p>' + message + '</p>';
+        $('.messages').append(content);
+
+    }
 
     $("#colors").click(function () {
         if ($('.color').is(':visible')) {
@@ -131,11 +184,44 @@ document.addEventListener("DOMContentLoaded", function () {
         var saveImageWindow = window.open("");
         var title = 'image' + new Date().toISOString();
 
-        saveImageWindow.document.write('<title>'+ title + '</title>');
-        saveImageWindow.document.write('<img src="'+img+'"/>');
+        saveImageWindow.document.write('<title>' + title + '</title>');
+        saveImageWindow.document.write('<img src="' + img + '"/>');
     });
 
-    // main loop, running every 25ms
+    $("#rooms").click(function () {
+        socket.emit('getRoomList');
+    });
+
+    $("#text").click(function () {
+        if (text) {
+            text = false;
+        } else {
+            text = true;
+        }
+
+        console.log(text);
+    });
+
+
+    var $window = $(window);
+
+    var messageInput = $(".inputMessage").focus();
+
+    $window.keydown(function (event) {
+
+        if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+            messageInput.focus();
+        }
+
+        if (event.which === 13 && messageInput.val() !== '') {
+
+            var message = messageInput.val();
+            socket.emit('message', message);
+            messageInput.val('');
+        }
+    });
+
+// main loop, running every 25ms
     function mainLoop() {
         // check if the user is drawing
         drawLine();
@@ -148,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mainLoop();
 
     function drawLine() {
-        if (mouse.click && mouse.move && mouse.pos_prev) {
+        if (mouse.click && mouse.move && mouse.pos_prev && !text) {
             // send line to to the server
             socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev], room: room, color: color});
             mouse.move = false;
@@ -156,6 +242,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y, color: mouse.pos.color};
 
+        if (mouse.click && text) {
+            count++;
+            console.log(count);
+
+            if (count === 2) {
+                var message = prompt('What is your text?');
+                console.log(mouse.pos);
+                socket.emit('drawText', {message: message, mouse: mouse.pos});
+                count = 0;
+                mouse.click = false;
+            }
+        }
     }
 
     function resizeScreen() {
@@ -174,4 +272,5 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(canvas);
         }
     }
-});
+})
+;
