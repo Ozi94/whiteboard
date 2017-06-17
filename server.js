@@ -11,6 +11,7 @@ app.use(express.static(__dirname + '/public'));
 console.log("Server running on 127.0.0.1:8080");
 
 var lineHistory = {};
+var textHistory = {};
 var rooms = [];
 var numberOfUsers = 0;
 
@@ -20,11 +21,19 @@ io.on('connection', function (socket) {
         socket.room = room;
         socket.join(socket.room);
 
+        if (rooms.indexOf(room) === -1) {
+            rooms.push(room);
+        }
+
         var roomLineHistory = lineHistory[socket.room];
-        console.log(roomLineHistory);
+        var roomTextHistory = textHistory[socket.room];
 
         if (roomLineHistory !== undefined) {
             io.to(socket.id).emit('drawLine', {line: roomLineHistory});
+        }
+
+        if (roomTextHistory !== undefined) {
+            io.to(socket.id).emit('drawText', {line: roomTextHistory});
         }
 
     });
@@ -67,12 +76,13 @@ io.on('connection', function (socket) {
         }
         return availableRooms;
     }
+
     socket.on('drawLine', function (data) {
 
-        var roomName = data.room;
 
-        if (rooms.indexOf(roomName) === -1) {
-            rooms.push(roomName);
+        var roomName = socket.room;
+
+        if (lineHistory[roomName] === undefined) {
             lineHistory[roomName] = data.line;
         }
         else {
@@ -85,7 +95,23 @@ io.on('connection', function (socket) {
 
 
     socket.on('drawText', function (data) {
-        io.sockets.in(socket.room).emit('drawText', data);
+        console.log('#######');
+        console.log(data);
+        console.log('#######');
+
+        var roomName = socket.room;
+
+        if (textHistory[roomName] === undefined) {
+            textHistory[roomName] = data.line;
+        }
+        else {
+            textHistory[roomName].push.apply(textHistory[roomName], data.line);
+            console.log(textHistory[roomName]);
+        }
+
+        if (data.line !== null) {
+            io.sockets.in(socket.room).emit('drawText', {line: data.line});
+        }
     });
 
     socket.on('resizeScreen', function () {
@@ -95,6 +121,7 @@ io.on('connection', function (socket) {
         console.log(lineHistory[socket.room]);
 
         io.to(socket.id).emit('drawLine', {line: lineHistory[socket.room]});
+        io.to(socket.id).emit('drawText', {line: textHistory[socket.room]});
 
     });
 

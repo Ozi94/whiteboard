@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var color = 'black';
     var count = 0;
-
     var text = false;
 
     var colors = document.getElementsByClassName('color');
@@ -75,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data !== undefined) {
 
+            console.log(data.line);
             var line = data.line;
 
             for (var i = 0; i < line.length - 1; i += 2) {
@@ -87,6 +87,18 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+    });
+
+    socket.on('drawText', function (data) {
+
+        var line = data.line;
+
+        for (var i = 0; i < line.length; i++) {
+            var fontSize = line[i].size * 10 + "px Arial";
+            context.font = fontSize;
+            context.fillStyle = line[i].color;
+            context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
+        }
     });
 
     socket.on('message', function (data) {
@@ -127,18 +139,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     socket.on('roomlist', function (data) {
         console.log(data);
-    });
-
-    socket.on('drawText', function (data) {
-        console.log('drawtextevent');
-        console.log(data);
-
-        var fontSize = data.mouse.size * 10 + "px Arial";
-
-        context.font = fontSize;
-
-        context.fillStyle = data.mouse.color;
-        context.fillText(data.message,data.mouse.x * screenWidth,data.mouse.y * screenHeight);
     });
 
     function addParticipantsMessage(data) {
@@ -236,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function drawLine() {
         if (mouse.click && mouse.move && mouse.pos_prev && !text) {
             // send line to to the server
-            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev], room: room, color: color});
+            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
             mouse.move = false;
         }
 
@@ -248,8 +248,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (count === 2) {
                 var message = prompt('What is your text?');
-                console.log(mouse.pos);
-                socket.emit('drawText', {message: message, mouse: mouse.pos});
+                mouse.pos.text = message;
+                socket.emit('drawText', {line: [mouse.pos]});
+                mouse.pos.text = '';
                 count = 0;
                 mouse.click = false;
             }
