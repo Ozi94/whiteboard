@@ -12,6 +12,7 @@ console.log("Server running on 127.0.0.1:8080");
 
 var lineHistory = {};
 var textHistory = {};
+var shapeHistory = {};
 var rooms = [];
 var numberOfUsers = 0;
 
@@ -27,6 +28,7 @@ io.on('connection', function (socket) {
 
         var roomLineHistory = lineHistory[socket.room];
         var roomTextHistory = textHistory[socket.room];
+        var roomShapeHistory = shapeHistory[socket.room];
 
         if (roomLineHistory !== undefined) {
             io.to(socket.id).emit('drawLine', {line: roomLineHistory});
@@ -34,6 +36,10 @@ io.on('connection', function (socket) {
 
         if (roomTextHistory !== undefined) {
             io.to(socket.id).emit('drawText', {line: roomTextHistory});
+        }
+
+        if (roomShapeHistory !== undefined) {
+            io.to(socket.id).emit('drawShape', {line: roomShapeHistory});
         }
 
     });
@@ -114,6 +120,21 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('drawShape', function (data) {
+
+        var roomName = socket.room;
+
+        if (shapeHistory[roomName] === undefined) {
+            shapeHistory[roomName] = data.line;
+        }
+        else {
+            shapeHistory[roomName].push.apply(shapeHistory[roomName], data.line);
+            console.log(shapeHistory[roomName]);
+        }
+
+        io.sockets.in(socket.room).emit('drawShape', {line: data.line});
+    });
+
     socket.on('resizeScreen', function () {
 
         console.log('resize');
@@ -122,6 +143,7 @@ io.on('connection', function (socket) {
 
         io.to(socket.id).emit('drawLine', {line: lineHistory[socket.room]});
         io.to(socket.id).emit('drawText', {line: textHistory[socket.room]});
+        io.to(socket.id).emit('drawShape', {line: shapeHistory[socket.room]});
 
     });
 

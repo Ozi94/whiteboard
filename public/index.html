@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>MiniDoodle</title>
+    <title>Collaborative Drawing</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -12,18 +12,37 @@
 </head>
 <body>
 
-<canvas id="drawing"></canvas>
 
-<div>
-    <nav class="navbar navbar-default">
+<div id="parent">
+    <canvas id="drawing"></canvas>
+
+    <nav class="navbar navbar-default" id="navbar">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">Collaborative drawing</a>
             </div>
             <ul class="nav navbar-nav">
+
+                <li>
+                    <button id="brush" class="btn btn-primary">Brush</button>
+                </li>
+
+                <li>
+                    <button id="shapes" class="btn btn-primary">Shapes</button>
+                </li>
+                <li>
+                    <div class="shape circle"></div>
+                </li>
+                <li>
+                    <div class="shape rectangle"></div>
+                </li>
+
+
                 <li>
                     <button id="text" class="btn btn-primary">Text</button>
                 </li>
+
+
                 <li>
                     <button id="colors" class="btn btn-primary">Colors</button>
                 </li>
@@ -42,6 +61,8 @@
                 <li>
                     <div class="color yellow"></div>
                 </li>
+
+
                 <li>
                     <button id="size" class="btn btn-primary">Size</button>
                 </li>
@@ -60,9 +81,13 @@
                 <li>
                     <div class="size xl 11"></div>
                 </li>
+
+
                 <li>
                     <button id="save" class="btn btn-primary">Save</button>
                 </li>
+
+
                 <li>
                     <button id="rooms" class="btn btn-primary">Roomlist</button>
                 </li>
