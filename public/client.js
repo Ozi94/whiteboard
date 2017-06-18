@@ -44,7 +44,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function onShapeUpdate(e) {
         shape = e.target.className.split(' ')[1];
         isShape = true;
+        isBrush = false;
+        isText = false;
         mouse.pos.shape = shape;
+        mouse.pos.vertical = 0;
+
+        var position = prompt('Vertical? Y/N');
+
+        if (position.toUpperCase() === 'Y' ||
+            position.toUpperCase() === 'YES') {
+            mouse.pos.vertical = 1;
+        }
+
         alert('Click where your shape want to be placed!');
     }
 
@@ -102,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data !== undefined) {
 
-            console.log(data.line);
+            // console.log(data.line);
             var line = data.line;
 
             for (var i = 0; i < line.length - 1; i += 2) {
@@ -122,7 +133,11 @@ document.addEventListener("DOMContentLoaded", function () {
         var line = data.line;
 
         for (var i = 0; i < line.length; i++) {
-            var fontSize = line[i].size * 10 + "px Arial";
+
+            var screenRatio = line[i].width / screenWidth;
+            var fontSize = line[i].size *  screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
+
+            console.log(fontSize);
             context.font = fontSize;
             context.fillStyle = line[i].color;
             context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
@@ -130,13 +145,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     socket.on('drawShape', function (data) {
-        console.log(data.line[0]);
+        console.log(data);
 
         var params = data.line;
 
         for (var i = 0; i < params.length; i++) {
             context.strokeStyle = params[i].color;
-            context.strokeRect(params[i].x * screenWidth, params[i].y * screenHeight, params[i].size * screenWidth / 30, params[i].size * screenHeight / 30);
+            context.lineWidth = 2;
+
+            if (!params[i].vertical) {
+                context.strokeRect(
+                    params[i].x * screenWidth,
+                    params[i].y * screenHeight,
+                    params[i].size * screenWidth / 30,
+                    params[i].size * screenHeight / 30
+                );
+            } else {
+                context.strokeRect(
+                    params[i].x * screenWidth,
+                    params[i].y * screenHeight,
+                    params[i].size * screenHeight / 30,
+                    params[i].size * screenWidth / 30
+                );
+
+            }
         }
 
     });
@@ -218,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     $(".shape").click(function () {
-        $(".shape").hide();
+        $('.shape').hide();
     });
 
     $("#size").click(function () {
@@ -248,13 +280,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     $("#text").click(function () {
         if (isText) {
-            $(this).css('background', 'red');
             alert("Text mode disabled!");
             isText = false;
         } else {
-            $(this).css('background', 'green');
             alert("Text mode enabled!");
-            isShape = false; 
+            isShape = false;
+            isBrush = false;
             isText = true;
         }
 
@@ -262,8 +293,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     $("#brush").click(function () {
-       isText = false;
-       isShape = false;
+        isText = false;
+        isShape = false;
+        isBrush = true;
     });
 
     var $window = $(window);
@@ -312,6 +344,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (count === 2) {
                 var message = prompt('What is your text?');
                 mouse.pos.text = message;
+                mouse.pos.width = screenWidth;
                 socket.emit('drawText', {line: [mouse.pos]});
                 mouse.pos.text = '';
                 count = 0;
@@ -325,6 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (count === 2) {
                 // mouse.pos.shape = shape;
+                mouse.pos.width = screenWidth;
                 socket.emit('drawShape', {line: [mouse.pos]});
                 count = 0;
                 mouse.click = false;
