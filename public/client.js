@@ -108,12 +108,11 @@ document.addEventListener("DOMContentLoaded", function () {
         mouse.move = true;
     };
 
-    // draw line received from server
     socket.on('drawLine', function (data) {
 
         if (data !== undefined) {
 
-            // console.log(data.line);
+            console.log(data.line);
             var line = data.line;
 
             for (var i = 0; i < line.length - 1; i += 2) {
@@ -132,15 +131,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var line = data.line;
 
-        for (var i = 0; i < line.length; i++) {
+        if (line !== undefined) {
+            for (var i = 0; i < line.length; i++) {
 
-            var screenRatio = line[i].width / screenWidth;
-            var fontSize = line[i].size *  screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
+                var screenRatio = line[i].width / screenWidth;
+                var fontSize = line[i].size * screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
 
-            console.log(fontSize);
-            context.font = fontSize;
-            context.fillStyle = line[i].color;
-            context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
+                console.log(fontSize);
+                context.font = fontSize;
+                context.fillStyle = line[i].color;
+                context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
+            }
         }
     });
 
@@ -149,25 +150,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var params = data.line;
 
-        for (var i = 0; i < params.length; i++) {
-            context.strokeStyle = params[i].color;
-            context.lineWidth = 2;
+        if (params !== undefined) {
+            for (var i = 0; i < params.length; i++) {
+                context.strokeStyle = params[i].color;
+                context.lineWidth = 2;
 
-            if (!params[i].vertical) {
-                context.strokeRect(
-                    params[i].x * screenWidth,
-                    params[i].y * screenHeight,
-                    params[i].size * screenWidth / 30,
-                    params[i].size * screenHeight / 30
-                );
-            } else {
-                context.strokeRect(
-                    params[i].x * screenWidth,
-                    params[i].y * screenHeight,
-                    params[i].size * screenHeight / 30,
-                    params[i].size * screenWidth / 30
-                );
+                if (!params[i].vertical) {
+                    context.strokeRect(
+                        params[i].x * screenWidth,
+                        params[i].y * screenHeight,
+                        params[i].size * screenWidth / 30,
+                        params[i].size * screenHeight / 30
+                    );
+                } else {
+                    context.strokeRect(
+                        params[i].x * screenWidth,
+                        params[i].y * screenHeight,
+                        params[i].size * screenHeight / 30,
+                        params[i].size * screenWidth / 30
+                    );
 
+                }
             }
         }
 
@@ -192,6 +195,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         socket.emit('room', input);
         socket.emit('adduser', username);
+    });
+
+    socket.on('cleanCanvas', function () {
+        context.clearRect(0, 0, canvas.width, canvas.height);
     });
 
     socket.on('userJoined', function (data) {
@@ -265,6 +272,10 @@ document.addEventListener("DOMContentLoaded", function () {
         $(".size").hide();
     });
 
+    $("#rooms").click(function () {
+        socket.emit('getRoomList');
+    });
+
     $("#save").click(function () {
         var img = canvas.toDataURL("image/png");
         var saveImageWindow = window.open("");
@@ -272,10 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         saveImageWindow.document.write('<title>' + title + '</title>');
         saveImageWindow.document.write('<img src="' + img + '"/>');
-    });
-
-    $("#rooms").click(function () {
-        socket.emit('getRoomList');
     });
 
     $("#text").click(function () {
@@ -316,6 +323,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+
+    $('#undo').click(function () {
+        socket.emit('undo');
+    });
+
 // main loop, running every 25ms
     function mainLoop() {
         // check if the user is drawing
@@ -346,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 mouse.pos.text = message;
                 mouse.pos.width = screenWidth;
                 socket.emit('drawText', {line: [mouse.pos]});
-                mouse.pos.text = '';
+                // mouse.pos.text = '';
                 count = 0;
                 mouse.click = false;
             }

@@ -13,6 +13,7 @@ console.log("Server running on 127.0.0.1:8080");
 var lineHistory = {};
 var textHistory = {};
 var shapeHistory = {};
+var undoHistory = {};
 var rooms = [];
 var numberOfUsers = 0;
 
@@ -112,7 +113,13 @@ io.on('connection', function (socket) {
         }
         else {
             textHistory[roomName].push.apply(textHistory[roomName], data.line);
-            console.log(textHistory[roomName]);
+        }
+
+        if (undoHistory[roomName] === undefined) {
+            undoHistory[roomName] = [0];
+        }
+        else {
+            undoHistory[roomName].push(0);
         }
 
         if (data.line !== null) {
@@ -132,7 +139,35 @@ io.on('connection', function (socket) {
             console.log(shapeHistory[roomName]);
         }
 
+        if (undoHistory[roomName] === undefined) {
+            undoHistory[roomName] = [1];
+        }
+        else {
+            undoHistory[roomName].push(1);
+        }
+
         io.sockets.in(socket.room).emit('drawShape', {line: data.line});
+    });
+
+    socket.on('undo', function () {
+
+        if (undoHistory[socket.room] !== undefined) {
+            switch (undoHistory[socket.room][undoHistory[socket.room].length - 1]) {
+                case 0:
+                    textHistory[socket.room].pop();
+                    break;
+                case 1:
+                    shapeHistory[socket.room].pop();
+                    break;
+            }
+            undoHistory[socket.room].pop();
+        }
+
+
+        io.to(socket.id).emit('cleanCanvas');
+        io.to(socket.id).emit('drawLine', {line: lineHistory[socket.room]});
+        io.to(socket.id).emit('drawText', {line: textHistory[socket.room]});
+        io.to(socket.id).emit('drawShape', {line: shapeHistory[socket.room]});
     });
 
     socket.on('resizeScreen', function () {
