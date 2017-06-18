@@ -45,6 +45,30 @@ io.on('connection', function (socket) {
 
     });
 
+    socket.on('changeRoom', function (room) {
+
+        if (room === 'null'){
+            return;
+        }
+        socket.leave(socket.room);
+        socket.room = room;
+        socket.join(room);
+
+        io.to(socket.id).emit('cleanCanvas');
+
+        if (lineHistory[room] !== undefined) {
+            io.to(socket.id).emit('drawLine', {line: lineHistory[room]});
+        }
+
+        if (textHistory[room] !== undefined) {
+            io.to(socket.id).emit('drawText', {line: textHistory[room]});
+        }
+
+        if (shapeHistory[room] !== undefined) {
+            io.to(socket.id).emit('drawShape', {line: shapeHistory[room]});
+        }
+    });
+
 
     socket.on('adduser', function (username) {
         socket.username = username;

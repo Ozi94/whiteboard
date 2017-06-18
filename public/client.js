@@ -217,7 +217,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     socket.on('roomlist', function (data) {
-        console.log(data);
+        var newRoom = prompt('Available rooms: ' + data +'. Please enter the room to connect to');
+        console.log(newRoom);
+        socket.emit('changeRoom', newRoom);
     });
 
     function addParticipantsMessage(data) {
