@@ -108,6 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
         mouse.move = true;
     };
 
+    // $('#navbar').hide();
+
     socket.on('drawLine', function (data) {
 
         if (data !== undefined) {
@@ -135,7 +137,13 @@ document.addEventListener("DOMContentLoaded", function () {
             for (var i = 0; i < line.length; i++) {
 
                 var screenRatio = line[i].width / screenWidth;
-                var fontSize = line[i].size * screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
+                if (screenWidth > 1366){
+                    var fontSize = line[i].size * screenRatio * screenWidth / 210 * screenHeight / 500 + "px Arial";
+
+                }else{
+                    var fontSize = line[i].size * screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
+
+                }
 
                 console.log(fontSize);
                 context.font = fontSize;
@@ -166,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     context.strokeRect(
                         params[i].x * screenWidth,
                         params[i].y * screenHeight,
-                        params[i].size * screenHeight / 30,
+                        params[i].size * screenHeight / 25,
                         params[i].size * screenWidth / 30
                     );
 
@@ -217,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     socket.on('roomlist', function (data) {
-        var newRoom = prompt('Available rooms: ' + data +'. Please enter the room to connect to');
+        var newRoom = prompt('Available rooms: ' + data + '. Please enter the room to connect to');
         console.log(newRoom);
         socket.emit('changeRoom', newRoom);
     });
@@ -225,9 +233,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function addParticipantsMessage(data) {
         var message = '';
         if (data === 1) {
-            message += "there's 1 participant";
+            message += "<b>There's 1 participant</b>";
         } else {
-            message += "there are " + data + " participants";
+            message += "<b>There are " + data + " participants</b>";
         }
 
         var content = '<p>' + message + '</p>';
@@ -307,6 +315,16 @@ document.addEventListener("DOMContentLoaded", function () {
         isBrush = true;
     });
 
+    resizeMessageDiv(1366, 90, 93);
+
+    function resizeMessageDiv(width, small, large) {
+        if (screenWidth > width) {
+            $('.messages').css({'height': large + "%"});
+        } else {
+            $('.messages').css({'height': small + "%"});
+        }
+    }
+
     var $window = $(window);
 
     var messageInput = $(".inputMessage").focus();
@@ -381,6 +399,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function resizeScreen() {
+
+        if (screenWidth < 800) {
+            $('.navbar').hide();
+            resizeMessageDiv(800, 100, 100)
+        } else {
+            $('.navbar').show();
+            resizeMessageDiv(1366 , 90, 93)
+
+        }
+
         if (screenWidth !== window.innerWidth || screenHeight !== window.innerHeight) {
 
             screenWidth = window.innerWidth;

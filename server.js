@@ -188,10 +188,10 @@ io.on('connection', function (socket) {
         }
 
 
-        io.to(socket.id).emit('cleanCanvas');
-        io.to(socket.id).emit('drawLine', {line: lineHistory[socket.room]});
-        io.to(socket.id).emit('drawText', {line: textHistory[socket.room]});
-        io.to(socket.id).emit('drawShape', {line: shapeHistory[socket.room]});
+        io.to(socket.room).emit('cleanCanvas');
+        io.to(socket.room).emit('drawLine', {line: lineHistory[socket.room]});
+        io.to(socket.room).emit('drawText', {line: textHistory[socket.room]});
+        io.to(socket.room).emit('drawShape', {line: shapeHistory[socket.room]});
     });
 
     socket.on('resizeScreen', function () {

@@ -1,7 +1,7 @@
 {
-  "name": "MiniDoodle",
+  "name": "Drawing Canvas",
   "description": "Collaborative drawing canvas",
-  "author": "Code-and.Coffee",
+  "author": "Stefanita Orzan",
   "dependencies": {
     "express": "4.x",
     "jquery": "^3.2.1",

@@ -1,7 +1,3 @@
-/**
- * Fix user-agent
- */
-
 * {
     box-sizing: border-box;
 }
@@ -11,10 +7,6 @@ html, body {
     margin: 0;
     padding: 0;
 }
-
-/**
- * Canvas
- */
 
 #drawing {
     height: 100%;
@@ -106,16 +98,15 @@ html, body {
 
 .messages {
     position: absolute;
-    width: 20%;
-    height: 85%;
+    width: 15%;
     background-color: lightblue;
-    overflow: auto
+    overflow: auto;
 }
 
 .inputMessage {
     position: absolute;
     bottom: 0;
-    width: 20%;
+    width: 15%;
 }
 
 .shape.circle {
@@ -133,3 +124,29 @@ html, body {
     height:30px;
     display: none;
 }
+
+.navbar {
+    margin-bottom: 0 !important;
+}
+
+
+/*@media (max-width: 768px) {
+    .btn {
+        font-size:11px;
+        padding:4px 6px;
+    }
+}
+
+@media (min-width: 768px) {
+    .btn {
+        font-size:12px;
+        padding:6px 12px;
+    }
+}
+
+@media (min-width: 992px) {
+    .btn {
+        font-size:14px;
+        padding:8px 12px;
+    }
+}*/
