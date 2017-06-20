@@ -146,7 +146,7 @@ io.on('connection', function (socket) {
             undoHistory[roomName].push(0);
         }
 
-        if (data.line !== null) {
+        if (data.line !== '') {
             io.sockets.in(socket.room).emit('drawText', {line: data.line});
         }
     });
