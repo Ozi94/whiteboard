@@ -6,5 +6,8 @@
     "express": "4.x",
     "jquery": "^3.2.1",
     "socket.io": "*"
+  },
+  "scripts" : {
+    "start" : "server.js"
   }
 }

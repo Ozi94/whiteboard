@@ -196,6 +196,10 @@ io.on('connection', function (socket) {
 
     socket.on('undo', function () {
 
+        if (undoHistory[socket.room] === undefined){
+            return;
+        }
+
         var lastElement = undoHistory[socket.room][undoHistory[socket.room].length - 1];
 
         if (undoHistory[socket.room] !== undefined) {
