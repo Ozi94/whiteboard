@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var isShape = false;
     var isBrush = true;
+    var lineEndingCounter = 0;
     var shape;
 
     var colors = document.getElementsByClassName('color');
@@ -365,6 +366,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // send line to to the server
             socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
             mouse.move = false;
+            lineEndingCounter = 0;
         }
 
         mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y, color: mouse.pos.color};
@@ -389,11 +391,19 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(count);
 
             if (count === 2) {
-                // mouse.pos.shape = shape;
                 mouse.pos.width = screenWidth;
                 socket.emit('drawShape', {line: [mouse.pos]});
                 count = 0;
                 mouse.click = false;
+            }
+        }
+
+        if (isBrush && !mouse.click) {
+            lineEndingCounter++;
+
+            if (lineEndingCounter === 1) {
+                socket.emit('lineEnding');
+                console.log('delimitator');
             }
         }
     }

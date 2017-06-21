@@ -47,7 +47,7 @@ io.on('connection', function (socket) {
 
     socket.on('changeRoom', function (room) {
 
-        if (room === 'null'){
+        if (room === 'null') {
             return;
         }
         socket.leave(socket.room);
@@ -121,6 +121,13 @@ io.on('connection', function (socket) {
             console.log(lineHistory[roomName]);
         }
 
+        if (undoHistory[roomName] === undefined) {
+            undoHistory[roomName] = [2];
+        }
+        else {
+            undoHistory[roomName].push(2);
+        }
+
         io.sockets.in(socket.room).emit('drawLine', {line: data.line});
     });
 
@@ -146,6 +153,8 @@ io.on('connection', function (socket) {
             undoHistory[roomName].push(0);
         }
 
+        console.log(undoHistory[roomName]);
+
         if (data.line !== '') {
             io.sockets.in(socket.room).emit('drawText', {line: data.line});
         }
@@ -170,23 +179,52 @@ io.on('connection', function (socket) {
             undoHistory[roomName].push(1);
         }
 
+        console.log(undoHistory[roomName]);
+
+
         io.sockets.in(socket.room).emit('drawShape', {line: data.line});
+    });
+
+    socket.on('lineEnding', function () {
+        if (undoHistory[socket.room] === undefined) {
+            undoHistory[socket.room] = [-1];
+        }
+        else {
+            undoHistory[socket.room].push(-1);
+        }
     });
 
     socket.on('undo', function () {
 
+        var lastElement = undoHistory[socket.room][undoHistory[socket.room].length - 1];
+
         if (undoHistory[socket.room] !== undefined) {
-            switch (undoHistory[socket.room][undoHistory[socket.room].length - 1]) {
+            switch (lastElement) {
                 case 0:
                     textHistory[socket.room].pop();
                     break;
                 case 1:
                     shapeHistory[socket.room].pop();
                     break;
+                case -1:
+                    undoHistory[socket.room].pop();
+
+                    lastElement = undoHistory[socket.room][undoHistory[socket.room].length - 1];
+
+                    while (lastElement === 2) {
+                        lineHistory[socket.room].pop();
+                        lineHistory[socket.room].pop();
+                        undoHistory[socket.room].pop();
+                        lastElement = undoHistory[socket.room][undoHistory[socket.room].length - 1];
+                    }
+
+                    undoHistory[socket.room].push(2);
+                    break;
             }
             undoHistory[socket.room].pop();
-        }
 
+            console.log(undoHistory[socket.room]);
+        }
 
         io.to(socket.room).emit('cleanCanvas');
         io.to(socket.room).emit('drawLine', {line: lineHistory[socket.room]});
