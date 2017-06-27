@@ -425,9 +425,7 @@ document.addEventListener("DOMContentLoaded", function () {
         socket.emit('undo');
     });
 
-// main loop, running every 25ms
     function mainLoop() {
-        // check if the user is drawing
         draw();
 
         resizeScreen();
@@ -439,7 +437,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function draw() {
         if (mouse.click && mouse.move && mouse.pos_prev && !isText && !isShape) {
-            // send line to to the server
             socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
             mouse.move = false;
             lineEndingCounter = 0;
@@ -457,7 +454,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 mouse.pos.width = screenWidth;
                 mouse.pos.height = window.screen.height;
                 socket.emit('drawText', {line: [mouse.pos]});
-                // mouse.pos.text = '';
                 count = 0;
                 mouse.click = false;
             }
