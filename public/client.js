@@ -136,15 +136,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (line !== undefined) {
             for (var i = 0; i < line.length; i++) {
+                var width = window.screen.width;
+                var height = window.screen.height;
+                var fontSize = null;
 
-                var screenRatio = line[i].width / screenWidth;
-                if (screenWidth > 1366){
-                    var fontSize = line[i].size * screenRatio * screenWidth / 210 * screenHeight / 500 + "px Arial";
-
-                }else{
-                    var fontSize = line[i].size * screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
-
+                if (width === 800){
+                    fontSize = line[i].size * screenWidth / 135 * screenHeight / 500 + "px Arial";
                 }
+
+                if (width === 1024){
+                    fontSize = line[i].size * screenWidth / 150 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1152){
+                    fontSize = line[i].size * screenWidth / 210 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1280) {
+                    if (height === 720) {
+                        fontSize = line[i].size * screenWidth / 140 * screenHeight / 600 + "px Arial";
+                    }
+
+                    if (height === 768) {
+                        fontSize = line[i].size * screenWidth / 155 * screenHeight / 600 + "px Arial";
+                    }
+
+                    if (height === 800) {
+                        fontSize = line[i].size * screenWidth / 160 * screenHeight / 600 + "px Arial";
+                    }
+
+                    if (height === 960) {
+                        fontSize = line[i].size * screenWidth / 200 * screenHeight / 600 + "px Arial";
+                    }
+
+                    if (height === 1024) {
+                        fontSize = line[i].size * screenWidth / 185 * screenHeight / 700 + "px Arial";
+                    }
+                }
+
+                if (width === 1366 || width === 1360) {
+                    fontSize = line[i].size * screenWidth / 185 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1400) {
+                    fontSize = line[i].size * screenWidth / 185 * screenHeight / 700 + "px Arial";
+                }
+
+                if (width === 1440) {
+                    fontSize = line[i].size * screenWidth / 215 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1600) {
+                    fontSize = line[i].size * screenWidth / 220 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1680) {
+                    fontSize = line[i].size * screenWidth / 255 * screenHeight / 500 + "px Arial";
+                }
+
+                if (width === 1920) {
+                    fontSize = line[i].size * screenWidth / 270 * screenHeight / 500 + "px Arial";
+                }
+
+                if (fontSize === null){
+                    console.log('enull');
+                    fontSize = line[i].size * screenWidth / 185 * screenHeight / 500 + "px Arial";
+                }
+
 
                 console.log(fontSize);
                 context.font = fontSize;
@@ -415,7 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
             resizeMessageDiv(800, 100, 100)
         } else {
             $('.navbar').show();
-            resizeMessageDiv(1366 , 90, 93)
+            resizeMessageDiv(1366, 90, 93)
 
         }
 
