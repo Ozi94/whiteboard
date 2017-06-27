@@ -130,309 +130,320 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
+    function roundTo(n, digits) {
+        if (digits === undefined) {
+            digits = 0;
+        }
+
+        var multiplicator = Math.pow(10, digits);
+        n = parseFloat((n * multiplicator).toFixed(11));
+        return Math.round(n) / multiplicator;
+    }
+
+
     socket.on('drawText', function (data) {
 
         var line = data.line;
 
         if (line !== undefined) {
             for (var i = 0; i < line.length; i++) {
+                var screenRatioW = line[i].width / screenWidth;
+                var screenRatioH = line[i].height / window.screen.height;
 
-                var screenRatio = line[i].width / screenWidth;
-                if (screenWidth > 1366){
-                    var fontSize = line[i].size * screenRatio * screenWidth / 210 * screenHeight / 500 + "px Arial";
+                var screenRatio = (screenRatioH + screenRatioW)/2;
+                console.log(roundTo(screenRatio,1));
 
-                }else{
-                    var fontSize = line[i].size * screenRatio * screenWidth / 200 * screenHeight / 500 + "px Arial";
-
-                }
-
+                var fontSize = Math.ceil(line[i].size * roundTo(screenRatio,1) * screenWidth / 200 * screenHeight / 500) + "px Arial";
                 console.log(fontSize);
                 context.font = fontSize;
                 context.fillStyle = line[i].color;
                 context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
             }
+
+
         }
-    });
+});
 
-    socket.on('drawShape', function (data) {
-        console.log(data);
+socket.on('drawShape', function (data) {
+    console.log(data);
 
-        var params = data.line;
+    var params = data.line;
 
-        if (params !== undefined) {
-            for (var i = 0; i < params.length; i++) {
-                context.strokeStyle = params[i].color;
-                context.lineWidth = 2;
+    if (params !== undefined) {
+        for (var i = 0; i < params.length; i++) {
+            context.strokeStyle = params[i].color;
+            context.lineWidth = 2;
 
-                if (!params[i].vertical) {
-                    context.strokeRect(
-                        params[i].x * screenWidth,
-                        params[i].y * screenHeight,
-                        params[i].size * screenWidth / 30,
-                        params[i].size * screenHeight / 30
-                    );
-                } else {
-                    context.strokeRect(
-                        params[i].x * screenWidth,
-                        params[i].y * screenHeight,
-                        params[i].size * screenHeight / 25,
-                        params[i].size * screenWidth / 30
-                    );
+            if (!params[i].vertical) {
+                context.strokeRect(
+                    params[i].x * screenWidth,
+                    params[i].y * screenHeight,
+                    params[i].size * screenWidth / 30,
+                    params[i].size * screenHeight / 30
+                );
+            } else {
+                context.strokeRect(
+                    params[i].x * screenWidth,
+                    params[i].y * screenHeight,
+                    params[i].size * screenHeight / 25,
+                    params[i].size * screenWidth / 30
+                );
 
-                }
             }
         }
-
-    });
-
-    socket.on('message', function (data) {
-        console.log(data);
-        console.log(data.username);
-        console.log('Incoming message:', data.message);
-
-        var content = '<p>' + '<b>' + data.username + '</b>' + ':' + data.message + '</p>';
-        $('.messages').append(content);
-
-        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-    });
-
-    socket.on('connect', function () {
-        var username = prompt("What's your name?");
-        var input = prompt("What's the room you want to connect to?");
-
-        room = input;
-
-        socket.emit('room', input);
-        socket.emit('adduser', username);
-    });
-
-    socket.on('cleanCanvas', function () {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    socket.on('userJoined', function (data) {
-
-        console.log(data);
-        var content = '<p>' + '<b>' + data.username + '</b>' + ' joined' + '</p>';
-        $('.messages').append(content);
-        addParticipantsMessage(data.userNumber);
-    });
-
-    socket.on('userLeft', function (data) {
-
-        var content = '<p>' + '<b>' + data.username + '</b>' + ' left' + '</p>';
-        $('.messages').append(content);
-        addParticipantsMessage(data.userNumber);
-    });
-
-    socket.on('roomlist', function (data) {
-        var newRoom = prompt('Available rooms: ' + data + '. Please enter the room to connect to');
-        console.log(newRoom);
-        socket.emit('changeRoom', newRoom);
-    });
-
-    function addParticipantsMessage(data) {
-        var message = '';
-        if (data === 1) {
-            message += "<b>There's 1 participant</b>";
-        } else {
-            message += "<b>There are " + data + " participants</b>";
-        }
-
-        var content = '<p>' + message + '</p>';
-        $('.messages').append(content);
-
     }
 
-    $("#colors").click(function () {
-        if ($('.color').is(':visible')) {
-            $(".color").hide();
-        }
-        else {
-            $(".color").show();
-        }
-    });
+});
 
-    $(".color").click(function () {
+socket.on('message', function (data) {
+    console.log(data);
+    console.log(data.username);
+    console.log('Incoming message:', data.message);
+
+    var content = '<p>' + '<b>' + data.username + '</b>' + ':' + data.message + '</p>';
+    $('.messages').append(content);
+
+    document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+});
+
+socket.on('connect', function () {
+    var username = prompt("What's your name?");
+    var input = prompt("What's the room you want to connect to?");
+
+    room = input;
+
+    socket.emit('room', input);
+    socket.emit('adduser', username);
+});
+
+socket.on('cleanCanvas', function () {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+socket.on('userJoined', function (data) {
+
+    console.log(data);
+    var content = '<p>' + '<b>' + data.username + '</b>' + ' joined' + '</p>';
+    $('.messages').append(content);
+    addParticipantsMessage(data.userNumber);
+});
+
+socket.on('userLeft', function (data) {
+
+    var content = '<p>' + '<b>' + data.username + '</b>' + ' left' + '</p>';
+    $('.messages').append(content);
+    addParticipantsMessage(data.userNumber);
+});
+
+socket.on('roomlist', function (data) {
+    var newRoom = prompt('Available rooms: ' + data + '. Please enter the room to connect to');
+    console.log(newRoom);
+    socket.emit('changeRoom', newRoom);
+});
+
+function addParticipantsMessage(data) {
+    var message = '';
+    if (data === 1) {
+        message += "<b>There's 1 participant</b>";
+    } else {
+        message += "<b>There are " + data + " participants</b>";
+    }
+
+    var content = '<p>' + message + '</p>';
+    $('.messages').append(content);
+
+}
+
+$("#colors").click(function () {
+    if ($('.color').is(':visible')) {
         $(".color").hide();
-    });
+    }
+    else {
+        $(".color").show();
+    }
+});
+
+$(".color").click(function () {
+    $(".color").hide();
+});
 
 
-    $("#shapes").click(function () {
-        if ($('.shape').is(':visible')) {
-            $(".shape").hide();
-        }
-        else {
-            $(".shape").show();
-        }
-    });
+$("#shapes").click(function () {
+    if ($('.shape').is(':visible')) {
+        $(".shape").hide();
+    }
+    else {
+        $(".shape").show();
+    }
+});
 
-    $(".shape").click(function () {
-        $('.shape').hide();
-    });
+$(".shape").click(function () {
+    $('.shape').hide();
+});
 
-    $("#size").click(function () {
-        if ($('.size').is(':visible')) {
-            $(".size").hide();
-        } else {
-            $(".size").show();
-        }
-    });
-
-    $(".size").click(function () {
+$("#size").click(function () {
+    if ($('.size').is(':visible')) {
         $(".size").hide();
-    });
+    } else {
+        $(".size").show();
+    }
+});
 
-    $("#rooms").click(function () {
-        socket.emit('getRoomList');
-    });
+$(".size").click(function () {
+    $(".size").hide();
+});
 
-    $("#save").click(function () {
-        var img = canvas.toDataURL("image/png");
-        var saveImageWindow = window.open("");
-        var title = 'image' + new Date().toISOString();
+$("#rooms").click(function () {
+    socket.emit('getRoomList');
+});
 
-        saveImageWindow.document.write('<title>' + title + '</title>');
-        saveImageWindow.document.write('<img src="' + img + '"/>');
-    });
+$("#save").click(function () {
+    var img = canvas.toDataURL("image/png");
+    var saveImageWindow = window.open("");
+    var title = 'image' + new Date().toISOString();
 
-    $("#text").click(function () {
-        if (isText) {
-            alert("Text mode disabled!");
-            isText = false;
-        } else {
-            alert("Text mode enabled!");
-            isShape = false;
-            isBrush = false;
-            isText = true;
-        }
+    saveImageWindow.document.write('<title>' + title + '</title>');
+    saveImageWindow.document.write('<img src="' + img + '"/>');
+});
 
-        console.log(isText);
-    });
-
-    $("#brush").click(function () {
+$("#text").click(function () {
+    if (isText) {
+        alert("Text mode disabled!");
         isText = false;
+    } else {
+        alert("Text mode enabled!");
         isShape = false;
-        isBrush = true;
-    });
-
-    resizeMessageDiv(1366, 90, 93);
-
-    function resizeMessageDiv(width, small, large) {
-        if (screenWidth > width) {
-            $('.messages').css({'height': large + "%"});
-        } else {
-            $('.messages').css({'height': small + "%"});
-        }
+        isBrush = false;
+        isText = true;
     }
 
-    var $window = $(window);
+    console.log(isText);
+});
 
-    var messageInput = $(".inputMessage").focus();
+$("#brush").click(function () {
+    isText = false;
+    isShape = false;
+    isBrush = true;
+});
 
-    $window.keydown(function (event) {
+resizeMessageDiv(1366, 90, 93);
 
-        if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-            messageInput.focus();
-        }
+function resizeMessageDiv(width, small, large) {
+    if (screenWidth > width) {
+        $('.messages').css({'height': large + "%"});
+    } else {
+        $('.messages').css({'height': small + "%"});
+    }
+}
 
-        if (event.which === 13 && messageInput.val() !== '') {
+var $window = $(window);
 
-            var message = messageInput.val();
-            socket.emit('message', message);
-            messageInput.val('');
-        }
-    });
+var messageInput = $(".inputMessage").focus();
+
+$window.keydown(function (event) {
+
+    if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+        messageInput.focus();
+    }
+
+    if (event.which === 13 && messageInput.val() !== '') {
+
+        var message = messageInput.val();
+        socket.emit('message', message);
+        messageInput.val('');
+    }
+});
 
 
-    $('#undo').click(function () {
-        socket.emit('undo');
-    });
+$('#undo').click(function () {
+    socket.emit('undo');
+});
 
 // main loop, running every 25ms
-    function mainLoop() {
-        // check if the user is drawing
-        draw();
+function mainLoop() {
+    // check if the user is drawing
+    draw();
 
-        resizeScreen();
+    resizeScreen();
 
-        setTimeout(mainLoop, 25);
+    setTimeout(mainLoop, 25);
+}
+
+mainLoop();
+
+function draw() {
+    if (mouse.click && mouse.move && mouse.pos_prev && !isText && !isShape) {
+        // send line to to the server
+        socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
+        mouse.move = false;
+        lineEndingCounter = 0;
     }
 
-    mainLoop();
+    mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y, color: mouse.pos.color};
 
-    function draw() {
-        if (mouse.click && mouse.move && mouse.pos_prev && !isText && !isShape) {
-            // send line to to the server
-            socket.emit('drawLine', {line: [mouse.pos, mouse.pos_prev]});
-            mouse.move = false;
-            lineEndingCounter = 0;
-        }
+    if (mouse.click && isText) {
+        count++;
+        console.log(count);
 
-        mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y, color: mouse.pos.color};
-
-        if (mouse.click && isText) {
-            count++;
-            console.log(count);
-
-            if (count === 2) {
-                var message = prompt('What is your text?');
-                mouse.pos.text = message;
-                mouse.pos.width = screenWidth;
-                socket.emit('drawText', {line: [mouse.pos]});
-                // mouse.pos.text = '';
-                count = 0;
-                mouse.click = false;
-            }
-        }
-
-        if (mouse.click && isShape) {
-            count++;
-            console.log(count);
-
-            if (count === 2) {
-                mouse.pos.width = screenWidth;
-                socket.emit('drawShape', {line: [mouse.pos]});
-                count = 0;
-                mouse.click = false;
-            }
-        }
-
-        if (isBrush && !mouse.click) {
-            lineEndingCounter++;
-
-            if (lineEndingCounter === 1) {
-                socket.emit('lineEnding');
-                console.log('delimitator');
-            }
+        if (count === 2) {
+            var message = prompt('What is your text?');
+            mouse.pos.text = message;
+            mouse.pos.width = screenWidth;
+            mouse.pos.height = window.screen.height;
+            socket.emit('drawText', {line: [mouse.pos]});
+            // mouse.pos.text = '';
+            count = 0;
+            mouse.click = false;
         }
     }
 
-    function resizeScreen() {
+    if (mouse.click && isShape) {
+        count++;
+        console.log(count);
 
-        if (screenWidth < 800) {
-            $('.navbar').hide();
-            resizeMessageDiv(800, 100, 100)
-        } else {
-            $('.navbar').show();
-            resizeMessageDiv(1366 , 90, 93)
-
-        }
-
-        if (screenWidth !== window.innerWidth || screenHeight !== window.innerHeight) {
-
-            screenWidth = window.innerWidth;
-            screenHeight = window.innerHeight;
-
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            canvas.width = screenWidth;
-            canvas.height = screenHeight;
-
-            socket.emit('resizeScreen');
-
-            console.log(canvas);
+        if (count === 2) {
+            mouse.pos.width = screenWidth;
+            socket.emit('drawShape', {line: [mouse.pos]});
+            count = 0;
+            mouse.click = false;
         }
     }
+
+    if (isBrush && !mouse.click) {
+        lineEndingCounter++;
+
+        if (lineEndingCounter === 1) {
+            socket.emit('lineEnding');
+            console.log('delimitator');
+        }
+    }
+}
+
+function resizeScreen() {
+
+    if (screenWidth < 800) {
+        $('.navbar').hide();
+        resizeMessageDiv(800, 100, 100)
+    } else {
+        $('.navbar').show();
+        resizeMessageDiv(1366, 90, 93)
+
+    }
+
+    if (screenWidth !== window.innerWidth || screenHeight !== window.innerHeight) {
+
+        screenWidth = window.innerWidth;
+        screenHeight = window.innerHeight;
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        canvas.width = screenWidth;
+        canvas.height = screenHeight;
+
+        socket.emit('resizeScreen');
+
+        console.log(canvas);
+    }
+}
 })
 ;
