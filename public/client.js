@@ -67,21 +67,6 @@ document.addEventListener("DOMContentLoaded", function () {
         pos_prev: false
     };
 
-    /*    var messageDivHeight = $('.messages').height();
-
-     var inputDivHeight = $('.input').height();
-
-     var navbarWidth = $('#navbar').width();
-     var navbarHeight = $('#navbar').height();
-
-     var usedScreenWidth = navbarWidth;
-     var usedScreenHeight = messageDivHeight + inputDivHeight + navbarHeight;
-
-     console.log(usedScreenWidth);
-     console.log(usedScreenHeight);*/
-
-
-    // get canvas element and create context
     var canvas = document.getElementById('drawing');
     var context = canvas.getContext('2d');
     var screenWidth = window.innerWidth;
@@ -90,11 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var room = null;
 
-    // set canvas to full browser width/height
     canvas.width = screenWidth;
     canvas.height = screenHeight;
 
-    // register mouse event handlers
     canvas.onmousedown = function (e) {
         mouse.click = true;
     };
@@ -103,7 +86,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     canvas.onmousemove = function (e) {
-        // normalize mouse position to range 0.0 - 1.0
         mouse.pos.x = e.clientX / screenWidth;
         mouse.pos.y = e.clientY / screenHeight;
         mouse.move = true;
