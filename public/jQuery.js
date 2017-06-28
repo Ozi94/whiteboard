@@ -36,5 +36,3 @@ $("#size").click(function () {
 $(".size").click(function () {
     $(".size").hide();
 });
-
-

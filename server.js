@@ -15,11 +15,17 @@ var textHistory = {};
 var shapeHistory = {};
 var undoHistory = {};
 var rooms = [];
-var numberOfUsers = 0;
+var numberOfUsers = {};
+const defaultRoom = 'room1';
 
 io.on('connection', function (socket) {
 
     socket.on('room', function (room) {
+
+        if (room === null || room === '') {
+            room = defaultRoom;
+        }
+
         socket.room = room;
         socket.join(socket.room);
 
@@ -47,14 +53,45 @@ io.on('connection', function (socket) {
 
     socket.on('changeRoom', function (room) {
 
-        if (room === 'null') {
+        console.log(room);
+
+        if (room === 'null' || room === null || room === '') {
             return;
         }
-        socket.leave(socket.room);
+
+        var prevRoom = socket.room;
+
+        socket.leave(prevRoom);
+        numberOfUsers[prevRoom]--;
+
+        io.sockets.in(prevRoom).emit('userLeft', {
+            username: socket.username,
+            userNumber: numberOfUsers[prevRoom]
+        });
+
         socket.room = room;
         socket.join(room);
 
+        if (numberOfUsers[socket.room] === undefined) {
+            numberOfUsers[socket.room] = 1;
+        }
+        else {
+            numberOfUsers[socket.room]++;
+        }
+
         io.to(socket.id).emit('cleanCanvas');
+        io.to(socket.id).emit('cleanChatBox');
+
+        if (room === ''){
+            room = defaultRoom;
+        }
+
+        io.to(socket.id).emit('currentRoom', room);
+
+        io.sockets.in(socket.room).emit('userJoined', {
+            username: socket.username,
+            userNumber: numberOfUsers[socket.room]
+        });
 
         if (lineHistory[room] !== undefined) {
             io.to(socket.id).emit('drawLine', {line: lineHistory[room]});
@@ -72,20 +109,32 @@ io.on('connection', function (socket) {
 
     socket.on('adduser', function (username) {
         socket.username = username;
-        ++numberOfUsers;
+
+        if (numberOfUsers[socket.room] === undefined) {
+            numberOfUsers[socket.room] = 1;
+        }
+        else {
+            numberOfUsers[socket.room]++;
+        }
+
+        console.log(numberOfUsers[socket.room]);
+
 
         io.sockets.in(socket.room).emit('userJoined', {
             username: socket.username,
-            userNumber: numberOfUsers
+            userNumber: numberOfUsers[socket.room]
         });
     });
 
     socket.on('disconnect', function () {
-        --numberOfUsers;
+
+        if (numberOfUsers[socket.room] !== undefined) {
+            numberOfUsers[socket.room]--;
+        }
 
         io.sockets.in(socket.room).emit('userLeft', {
             username: socket.username,
-            userNumber: numberOfUsers
+            userNumber: numberOfUsers[socket.room]
         });
     });
 
@@ -196,7 +245,7 @@ io.on('connection', function (socket) {
 
     socket.on('undo', function () {
 
-        if (undoHistory[socket.room] === undefined){
+        if (undoHistory[socket.room] === undefined) {
             return;
         }
 
@@ -257,6 +306,18 @@ io.on('connection', function (socket) {
                 username: socket.username,
                 time: getCurrentTime()
             });
+        }
+    });
+
+    socket.on('currentRoom', function (room) {
+        console.log(room);
+
+        if (room === ''){
+            room = defaultRoom;
+        }
+
+        if (room !== undefined) {
+            io.to(socket.id).emit('currentRoom', room);
         }
     });
 
