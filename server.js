@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
 
         console.log(room);
 
-        if (room === 'null' || room === null || room === '') {
+        if (room === 'null' || room === null || room === '' || room === socket.room) {
             return;
         }
 
@@ -64,10 +64,14 @@ io.on('connection', function (socket) {
         socket.leave(prevRoom);
         numberOfUsers[prevRoom]--;
 
-        io.sockets.in(prevRoom).emit('userLeft', {
-            username: socket.username,
-            userNumber: numberOfUsers[prevRoom]
-        });
+        if (numberOfUsers[prevRoom] === 0) {
+            rooms.splice(rooms.indexOf(prevRoom), 1);
+        } else {
+            io.sockets.in(prevRoom).emit('userLeft', {
+                username: socket.username,
+                userNumber: numberOfUsers[prevRoom]
+            });
+        }
 
         socket.room = room;
         socket.join(room);
@@ -82,7 +86,7 @@ io.on('connection', function (socket) {
         io.to(socket.id).emit('cleanCanvas');
         io.to(socket.id).emit('cleanChatBox');
 
-        if (room === ''){
+        if (room === '') {
             room = defaultRoom;
         }
 
@@ -132,6 +136,10 @@ io.on('connection', function (socket) {
             numberOfUsers[socket.room]--;
         }
 
+        if (numberOfUsers[socket.room] === 0) {
+            rooms.splice(rooms.indexOf(socket.room), 1);
+        }
+
         io.sockets.in(socket.room).emit('userLeft', {
             username: socket.username,
             userNumber: numberOfUsers[socket.room]
@@ -139,23 +147,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('getRoomList', function () {
-        io.to(socket.id).emit('roomlist', findRooms());
+        io.to(socket.id).emit('roomlist', rooms);
 
     });
-
-
-    function findRooms() {
-        var availableRooms = [];
-        var rooms = io.sockets.adapter.rooms;
-        if (rooms) {
-            for (var room in rooms) {
-                if (room.length !== 20) {
-                    availableRooms.push(room);
-                }
-            }
-        }
-        return availableRooms;
-    }
 
     socket.on('drawLine', function (data) {
 
@@ -312,7 +306,7 @@ io.on('connection', function (socket) {
     socket.on('currentRoom', function (room) {
         console.log(room);
 
-        if (room === ''){
+        if (room === '') {
             room = defaultRoom;
         }
 

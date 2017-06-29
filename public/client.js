@@ -57,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function () {
         mouse.pos.vertical = 0;
 
         var position = prompt('Vertical? Y/N');
+        console.log(position);
 
-        if (position.toUpperCase() === 'Y' ||
-            position.toUpperCase() === 'YES') {
+        if (position !== null && (position.toUpperCase() === 'Y' || position.toUpperCase() === 'YES')) {
             mouse.pos.vertical = 1;
         }
 
@@ -187,8 +187,17 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log(count);
 
             if (count === 2) {
+                mouse.pos.vertical = 0;
+
+                var textOrientation = prompt('Vertical? Y/N');
+
+                if (textOrientation !== null
+                    && (textOrientation.toUpperCase() === 'Y'
+                    || textOrientation.toUpperCase() === 'YES')) {
+                    mouse.pos.vertical = 1;
+                }
+
                 mouse.pos.text = prompt('What is your text?');
-                ;
                 mouse.pos.width = screenWidth;
                 mouse.pos.height = screenHeight;
                 socket.emit('drawText', {line: [mouse.pos]});
@@ -381,12 +390,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     fontSize = Math.ceil(line[i].size * roundTo(screenRatio, 1) * screenWidth / 200 * screenHeight / 500) + "px Arial";
                 }
 
-                console.log(fontSize);
-                context.font = fontSize;
-                context.fillStyle = line[i].color;
-                context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
-            }
+                if (!line[i].vertical) {
 
+                    context.font = fontSize;
+                    context.fillStyle = line[i].color;
+                    context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
+                }
+                else {
+
+                    var text = line[i].text;
+                    var textSpacing = 0;
+
+                    for (var j = 0; j < text.length; j++) {
+
+                        context.font = fontSize;
+                        context.fillStyle = line[i].color;
+                        context.fillText(text[j], line[i].x * screenWidth, line[i].y * screenHeight + textSpacing);
+                        textSpacing += parseFloat(fontSize.match(/\d+\.\d+/)[0]);
+                    }
+                }
+            }
 
         }
     });
@@ -432,6 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     socket.on('roomlist', function (data) {
+        console.log(data);
         var newRoom = prompt('Available rooms: ' + data + '. Please enter the room to connect to');
         console.log(newRoom);
         socket.emit('changeRoom', newRoom);
