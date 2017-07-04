@@ -128,25 +128,3 @@ html, body {
 .navbar {
     margin-bottom: 0 !important;
 }
-
-
-/*@media (max-width: 768px) {
-    .btn {
-        font-size:11px;
-        padding:4px 6px;
-    }
-}
-
-@media (min-width: 768px) {
-    .btn {
-        font-size:12px;
-        padding:6px 12px;
-    }
-}
-
-@media (min-width: 992px) {
-    .btn {
-        font-size:14px;
-        padding:8px 12px;
-    }
-}*/

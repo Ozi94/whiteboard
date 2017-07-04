@@ -22,7 +22,9 @@ io.on('connection', function (socket) {
 
     socket.on('room', function (room) {
 
-        if (room === null || room === '') {
+        console.log(room);
+
+        if (room === null || room === '' || room === 'null') {
             room = defaultRoom;
         }
 
@@ -83,7 +85,7 @@ io.on('connection', function (socket) {
             numberOfUsers[socket.room]++;
         }
 
-        io.to(socket.id).emit('cleanCanvas');
+        io.to(socket.id).emit('clearCanvas');
         io.to(socket.id).emit('cleanChatBox');
 
         if (room === '') {
@@ -198,7 +200,7 @@ io.on('connection', function (socket) {
 
         console.log(undoHistory[roomName]);
 
-        if (data.line !== '') {
+        if (data.line.text !== '' && data.line.text !== 'null') {
             io.sockets.in(socket.room).emit('drawText', {line: data.line});
         }
     });
@@ -273,10 +275,14 @@ io.on('connection', function (socket) {
             console.log(undoHistory[socket.room]);
         }
 
-        io.to(socket.room).emit('cleanCanvas');
+        io.to(socket.room).emit('clearCanvas');
         io.to(socket.room).emit('drawLine', {line: lineHistory[socket.room]});
         io.to(socket.room).emit('drawText', {line: textHistory[socket.room]});
         io.to(socket.room).emit('drawShape', {line: shapeHistory[socket.room]});
+    });
+
+    socket.on('clearCanvas', function () {
+       io.to(socket.room).emit('clearCanvas');
     });
 
     socket.on('resizeScreen', function () {

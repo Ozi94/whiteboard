@@ -97,18 +97,48 @@ document.addEventListener("DOMContentLoaded", function () {
         mouse.move = true;
     };
 
+    function canvasToImage(backgroundColor) {
+        var data;
+
+        if (backgroundColor) {
+            data = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            var compositeOperation = context.globalCompositeOperation;
+
+            context.globalCompositeOperation = "destination-over";
+
+            context.fillStyle = backgroundColor;
+
+            context.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        var imageData = canvas.toDataURL("image/png");
+
+        if (backgroundColor) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            context.putImageData(data, 0, 0);
+
+            context.globalCompositeOperation = compositeOperation;
+        }
+
+        return imageData;
+    }
+
 
     $("#rooms").click(function () {
         socket.emit('getRoomList');
     });
 
     $("#save").click(function () {
-        var img = canvas.toDataURL("image/png");
-        var saveImageWindow = window.open("");
-        var title = 'image' + new Date().toISOString();
+        var a = document.createElement('a');
+        a.href = canvasToImage('white');
+        a.download = 'image' + new Date().toISOString() + '.png';
+        a.click()
+    });
 
-        saveImageWindow.document.write('<title>' + title + '</title>');
-        saveImageWindow.document.write('<img src="' + img + '"/>');
+    $("#clear").click(function () {
+        socket.emit('clearCanvas');
     });
 
     $("#text").click(function () {
@@ -235,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function () {
             screenWidth = window.innerWidth;
             screenHeight = window.innerHeight;
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
+            //context.clearRect(0, 0, canvas.width, canvas.height);
 
             canvas.width = screenWidth;
             canvas.height = screenHeight;
@@ -315,103 +345,105 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.on('drawText', function (data) {
 
         var line = data.line;
+        console.log(line);
+        if (line === undefined || line[0].text === null || line[0].text === 'null') {
+            return;
+        }
 
-        if (line !== undefined) {
-            for (var i = 0; i < line.length; i++) {
-                var width = window.screen.width;
-                var height = window.screen.height;
-                var fontSize = null;
+        for (var i = 0; i < line.length; i++) {
+            var width = window.screen.width;
+            var height = window.screen.height;
+            var fontSize = null;
 
-                var screenRatioW = line[i].width / screenWidth;
-                var screenRatioH = line[i].height / window.screen.height;
+            var screenRatioW = line[i].width / screenWidth;
+            var screenRatioH = line[i].height / window.screen.height;
 
-                var screenRatio = (screenRatioH + screenRatioW) / 2;
+            var screenRatio = (screenRatioH + screenRatioW) / 2;
 
-                if (width === 800) {
-                    fontSize = line[i].size * screenWidth / 135 * screenHeight / 500 + "px Arial";
+            if (width === 800) {
+                fontSize = line[i].size * screenWidth / 135 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1024) {
+                fontSize = line[i].size * screenWidth / 150 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1152) {
+                fontSize = line[i].size * screenWidth / 210 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1280) {
+                if (height === 720) {
+                    fontSize = line[i].size * screenWidth / 140 * screenHeight / 600 + "px Arial";
                 }
 
-                if (width === 1024) {
-                    fontSize = line[i].size * screenWidth / 150 * screenHeight / 500 + "px Arial";
+                if (height === 768) {
+                    fontSize = line[i].size * screenWidth / 155 * screenHeight / 600 + "px Arial";
                 }
 
-                if (width === 1152) {
-                    fontSize = line[i].size * screenWidth / 210 * screenHeight / 500 + "px Arial";
+                if (height === 800) {
+                    fontSize = line[i].size * screenWidth / 160 * screenHeight / 600 + "px Arial";
                 }
 
-                if (width === 1280) {
-                    if (height === 720) {
-                        fontSize = line[i].size * screenWidth / 140 * screenHeight / 600 + "px Arial";
-                    }
-
-                    if (height === 768) {
-                        fontSize = line[i].size * screenWidth / 155 * screenHeight / 600 + "px Arial";
-                    }
-
-                    if (height === 800) {
-                        fontSize = line[i].size * screenWidth / 160 * screenHeight / 600 + "px Arial";
-                    }
-
-                    if (height === 960) {
-                        fontSize = line[i].size * screenWidth / 200 * screenHeight / 600 + "px Arial";
-                    }
-
-                    if (height === 1024) {
-                        fontSize = line[i].size * screenWidth / 185 * screenHeight / 700 + "px Arial";
-                    }
+                if (height === 960) {
+                    fontSize = line[i].size * screenWidth / 200 * screenHeight / 600 + "px Arial";
                 }
 
-                if (width === 1366 || width === 1360) {
-                    fontSize = line[i].size * screenWidth / 185 * screenHeight / 500 + "px Arial";
-                }
-
-                if (width === 1400) {
+                if (height === 1024) {
                     fontSize = line[i].size * screenWidth / 185 * screenHeight / 700 + "px Arial";
-                }
-
-                if (width === 1440) {
-                    fontSize = line[i].size * screenWidth / 215 * screenHeight / 500 + "px Arial";
-                }
-
-                if (width === 1600) {
-                    fontSize = line[i].size * screenWidth / 220 * screenHeight / 500 + "px Arial";
-                }
-
-                if (width === 1680) {
-                    fontSize = line[i].size * screenWidth / 255 * screenHeight / 500 + "px Arial";
-                }
-
-                if (width === 1920) {
-                    fontSize = line[i].size * screenWidth / 270 * screenHeight / 500 + "px Arial";
-                }
-
-                if (fontSize === null) {
-                    console.log('enull');
-                    fontSize = Math.ceil(line[i].size * roundTo(screenRatio, 1) * screenWidth / 200 * screenHeight / 500) + "px Arial";
-                }
-
-                if (!line[i].vertical) {
-
-                    context.font = fontSize;
-                    context.fillStyle = line[i].color;
-                    context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
-                }
-                else {
-
-                    var text = line[i].text;
-                    var textSpacing = 0;
-
-                    for (var j = 0; j < text.length; j++) {
-
-                        context.font = fontSize;
-                        context.fillStyle = line[i].color;
-                        context.fillText(text[j], line[i].x * screenWidth, line[i].y * screenHeight + textSpacing);
-                        textSpacing += parseFloat(fontSize.match(/\d+\.\d+/)[0]);
-                    }
                 }
             }
 
+            if (width === 1366 || width === 1360) {
+                fontSize = line[i].size * screenWidth / 185 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1400) {
+                fontSize = line[i].size * screenWidth / 185 * screenHeight / 700 + "px Arial";
+            }
+
+            if (width === 1440) {
+                fontSize = line[i].size * screenWidth / 215 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1600) {
+                fontSize = line[i].size * screenWidth / 220 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1680) {
+                fontSize = line[i].size * screenWidth / 255 * screenHeight / 500 + "px Arial";
+            }
+
+            if (width === 1920) {
+                fontSize = line[i].size * screenWidth / 270 * screenHeight / 500 + "px Arial";
+            }
+
+            if (fontSize === null) {
+                console.log('enull');
+                fontSize = Math.ceil(line[i].size * roundTo(screenRatio, 1) * screenWidth / 200 * screenHeight / 500) + "px Arial";
+            }
+
+            if (!line[i].vertical) {
+
+                context.font = fontSize;
+                context.fillStyle = line[i].color;
+                context.fillText(line[i].text, line[i].x * screenWidth, line[i].y * screenHeight);
+            }
+            else {
+
+                var text = line[i].text;
+                var textSpacing = 0;
+
+                for (var j = 0; j < text.length; j++) {
+
+                    context.font = fontSize;
+                    context.fillStyle = line[i].color;
+                    context.fillText(text[j], line[i].x * screenWidth, line[i].y * screenHeight + textSpacing);
+                    textSpacing += parseFloat(fontSize.match(/\d+\.\d+/)[0]);
+                }
+            }
         }
+
     });
 
     socket.on('drawShape', function (data) {
@@ -445,9 +477,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
-    socket.on('cleanCanvas', function () {
+    socket.on('clearCanvas', function () {
         context.clearRect(0, 0, canvas.width, canvas.height);
-
     });
 
     socket.on('cleanChatBox', function () {
