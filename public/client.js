@@ -345,8 +345,14 @@ document.addEventListener("DOMContentLoaded", function () {
     socket.on('drawText', function (data) {
 
         var line = data.line;
+
+        if (line === undefined){
+            return
+        }
+
         console.log(line);
-        if (line === undefined || line[0].text === null || line[0].text === 'null') {
+
+        if (line[0].text === null || line[0].text === 'null') {
             return;
         }
 
