@@ -282,7 +282,11 @@ io.on('connection', function (socket) {
     });
 
     socket.on('clearCanvas', function () {
-       io.to(socket.room).emit('clearCanvas');
+        lineHistory[socket.room] = [];
+        textHistory[socket.room] = [];
+        shapeHistory[socket.room] = [];
+        
+        io.to(socket.room).emit('clearCanvas');
     });
 
     socket.on('resizeScreen', function () {
