@@ -285,6 +285,7 @@ io.on('connection', function (socket) {
         lineHistory[socket.room] = [];
         textHistory[socket.room] = [];
         shapeHistory[socket.room] = [];
+        undoHistory[socket.room] = [];
         
         io.to(socket.room).emit('clearCanvas');
     });
