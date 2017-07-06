@@ -77,6 +77,8 @@ io.on('connection', function (socket) {
 
         socket.room = room;
         socket.join(room);
+        
+        rooms.push(room);
 
         if (numberOfUsers[socket.room] === undefined) {
             numberOfUsers[socket.room] = 1;
@@ -286,7 +288,7 @@ io.on('connection', function (socket) {
         textHistory[socket.room] = [];
         shapeHistory[socket.room] = [];
         undoHistory[socket.room] = [];
-        
+
         io.to(socket.room).emit('clearCanvas');
     });
 
