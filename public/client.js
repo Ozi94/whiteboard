@@ -228,6 +228,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 mouse.pos.text = prompt('What is your text?');
+
+                if (mouse.pos.text === null){
+                    return;
+                }
+                
                 mouse.pos.width = screenWidth;
                 mouse.pos.height = screenHeight;
                 socket.emit('drawText', {line: [mouse.pos]});
