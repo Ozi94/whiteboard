@@ -77,8 +77,10 @@ io.on('connection', function (socket) {
 
         socket.room = room;
         socket.join(room);
-        
-        rooms.push(room);
+
+        if (rooms.indexOf(room) === -1) {
+            rooms.push(room);
+        }
 
         if (numberOfUsers[socket.room] === undefined) {
             numberOfUsers[socket.room] = 1;
